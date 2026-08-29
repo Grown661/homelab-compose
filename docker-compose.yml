@@ -1,0 +1,63 @@
+# Homelab base stack: monitoring, log viewer, auto-updates, static landing page.
+# Configuration via .env (copy .env.example to .env first).
+
+name: homelab
+
+networks:
+  homelab:
+    driver: bridge
+
+volumes:
+  uptime-kuma-data:
+
+services:
+  # Uptime monitoring with web UI and alerting
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "${KUMA_PORT:-3001}:3001"
+    volumes:
+      - uptime-kuma-data:/app/data
+    networks:
+      - homelab
+
+  # Realtime log viewer for all containers (read-only Docker socket)
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    restart: unless-stopped
+    ports:
+      - "${DOZZLE_PORT:-8888}:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      DOZZLE_NO_ANALYTICS: "true"
+    networks:
+      - homelab
+
+  # Automatic image updates (daily at 04:00, cleans old images)
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      WATCHTOWER_CLEANUP: "true"
+      WATCHTOWER_SCHEDULE: "0 0 4 * * *"
+    networks:
+      - homelab
+
+  # Static landing page for the homelab (put your HTML into ./nginx/html)
+  landing:
+    image: nginx:1.27-alpine
+    container_name: landing
+    restart: unless-stopped
+    ports:
+      - "${LANDING_PORT:-8080}:80"
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html:ro
+    networks:
+      - homelab
