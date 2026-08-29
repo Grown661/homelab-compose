@@ -28,6 +28,11 @@ ein Repo klonen, `.env` anlegen, `./manage.sh up` — fertig.
 | dozzle      | Live-Log-Viewer für alle Container (read-only) | 8888           |
 | watchtower  | Zieht täglich um 04:00 neue Images, räumt auf  | —              |
 
+Uptime-Kuma und Dozzle binden bewusst nur auf `127.0.0.1` (Dozzle zeigt alle
+Container-Logs ohne Auth). Wer sie im LAN oder öffentlich erreichbar machen
+will, stellt einen eigenen Reverse-Proxy mit Authentifizierung (z.B. nginx +
+Basic Auth oder Authelia) davor, statt die `127.0.0.1:`-Bindung zu entfernen.
+
 ## Stack
 
 Docker Compose v2, Images: `louislam/uptime-kuma`, `amir20/dozzle`,

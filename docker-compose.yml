@@ -17,7 +17,7 @@ services:
     container_name: uptime-kuma
     restart: unless-stopped
     ports:
-      - "${KUMA_PORT:-3001}:3001"
+      - "127.0.0.1:${KUMA_PORT:-3001}:3001"
     volumes:
       - uptime-kuma-data:/app/data
     networks:
@@ -29,7 +29,7 @@ services:
     container_name: dozzle
     restart: unless-stopped
     ports:
-      - "${DOZZLE_PORT:-8888}:8080"
+      - "127.0.0.1:${DOZZLE_PORT:-8888}:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
